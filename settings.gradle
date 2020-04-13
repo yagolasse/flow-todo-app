@@ -1,0 +1,2 @@
+rootProject.name='Flow TODO App'
+include ':app'
