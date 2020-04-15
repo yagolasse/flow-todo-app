@@ -15,7 +15,4 @@ val appModule = module {
     single<ITodoRepository> { TodoRepository() }
     single { TodoListIntentFactory() }
     single { TodoListModelStore() }
-    factory { (editable: Editable?) ->
-        TodoListViewEvent(editable)
-    }
 }

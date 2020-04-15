@@ -24,16 +24,21 @@ class TodoListIntentFactory : IntentFactory<TodoListViewEvent>, KoinComponent {
         modelStore.process(toIntent(viewEvent))
     }
 
-    private fun toIntent(viewViewEvent: TodoListViewEvent) = intent<TodoListModel> {
-        scope.launch(Dispatchers.IO) {
-            useCase.getTodoListByQuery(viewViewEvent.editable)
-                .catch { exception ->
-                    copy(dataSet = null, isLoading = false, errorMessage = exception.message)
-                }
-                .collect {
-                    modelStore.process(intent { copy(dataSet = it, isLoading = false, errorMessage = null) })
-                }
+    private fun toIntent(viewEvent: TodoListViewEvent) = when (viewEvent) {
+        is TodoListViewEvent.Query -> intent<TodoListModel> {
+            scope.launch(Dispatchers.IO) {
+                useCase.getTodoListByQuery(viewEvent.editable)
+                    .catch { exception ->
+                        copy(dataSet = null, isLoading = false, errorMessage = exception.message)
+                    }
+                    .collect {
+                        modelStore.process(intent { copy(dataSet = it, isLoading = false, errorMessage = null) })
+                    }
+            }
+            copy(dataSet = null, isLoading = true, errorMessage = null)
         }
-        copy(dataSet = null, isLoading = true, errorMessage = null)
+        is TodoListViewEvent.CreateTodo -> intent {
+            copy(shouldOpenTodoCreation = !viewEvent.isAlreadyShown)
+        }
     }
 }
