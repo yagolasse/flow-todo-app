@@ -8,13 +8,15 @@ import kotlinx.coroutines.flow.flow
 class TodoRepository : ITodoRepository {
 
     // TODO refactor to use Room
-    private val dataSet: List<Todo> = mutableListOf()
+    private val dataSet: List<Todo> = mutableListOf(Todo("Title", "abcde"), Todo("Title", "edcba"))
 
-    override fun getTodoListByQuery(query: String?): Flow<List<Todo>> = flow {
+    override fun getTodoListByQuery(query: String): Flow<List<Todo>> = flow {
         delay(1000)
-        val filteredDataSet = query?.let { text ->
-            dataSet.filter { it.content.contains(text, ignoreCase = true) }
-        } ?: dataSet
-        emit(filteredDataSet)
+        emit(dataSet.filter { it.content.contains(query, ignoreCase = true) })
+    }
+
+    override fun getTodoList(): Flow<List<Todo>> = flow {
+        delay(1000)
+        emit(dataSet)
     }
 }
