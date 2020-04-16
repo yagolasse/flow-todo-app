@@ -9,5 +9,5 @@ sealed class TodoListViewEvent {
      * This event represents an action requested from model store.
      * Some events are single like open a Dialog or navigation so this tells to the model store that this event is not needed anymore.
      */
-    data class CreateTodo(val isAlreadyShown: Boolean = false) : TodoListViewEvent()
+    data class CreateEditTodo(val isAlreadyShown: Boolean = false, val editItem: Todo? = null) : TodoListViewEvent()
 }

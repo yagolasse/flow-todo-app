@@ -1,5 +1,5 @@
 package com.example.flowtodoapp.model
 
-import com.example.flowtodoapp.base.FlowModelStore
+import com.example.flowtodoapp.base.LiveDataModelStore
 
-class TodoListModelStore : FlowModelStore<TodoListModel>(TodoListModel(isLoading = true))
+class TodoListModelStore : LiveDataModelStore<TodoListModel>(TodoListModel(isLoading = true))
