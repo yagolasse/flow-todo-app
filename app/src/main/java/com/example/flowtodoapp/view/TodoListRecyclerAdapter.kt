@@ -6,16 +6,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.flowtodoapp.base.ViewEventFlow
 import com.example.flowtodoapp.databinding.ItemTodoBinding
 import com.example.flowtodoapp.model.Todo
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.*
 
 class TodoListRecyclerAdapter : RecyclerView.Adapter<TodoItemViewHolder>(), ViewEventFlow<Todo> {
 
     var dataSet: List<Todo> = listOf()
         set(value) {
             field = value
-            dataSetEvents
+            dataSetEvents.clear()
             notifyDataSetChanged()
         }
 
@@ -30,8 +28,10 @@ class TodoListRecyclerAdapter : RecyclerView.Adapter<TodoItemViewHolder>(), View
     override fun getItemCount(): Int = dataSet.size
 
     override fun onBindViewHolder(holder: TodoItemViewHolder, position: Int) {
-        val clickEventFlow = holder.bind(dataSet[position])
-        dataSetEvents.add(clickEventFlow)
+//        val clickEventFlow = holder.bind(dataSet[position]).collect {
+//
+//        }
+//        dataSetEvents.add(clickEventFlow)
     }
 
     override fun viewEvents(): Flow<Todo> = dataSetEvents.asFlow().flattenConcat()

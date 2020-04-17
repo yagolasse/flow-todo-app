@@ -12,12 +12,12 @@ class TodoUseCase(private val emptyTodoTitleErrorMessage: String) : ITodoUseCase
     private val repository: ITodoRepository by inject()
 
     override fun getTodoListByQuery(query: Editable?): Flow<List<Todo>> {
-        return if (query == null) repository.getTodoList()
+        return if (query.isNullOrBlank()) repository.getTodoList()
         else repository.getTodoListByQuery(query.toString().trim())
     }
 
     override fun save(todo: Todo): Flow<Unit> {
-        require(todo.title.isNotBlank())
+        require(todo.title.isNotBlank()) { emptyTodoTitleErrorMessage }
         return if (todo.id == null) repository.save(todo)
         else repository.update(todo)
     }

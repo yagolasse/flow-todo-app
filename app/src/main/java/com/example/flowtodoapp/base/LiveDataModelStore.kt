@@ -1,6 +1,7 @@
 package com.example.flowtodoapp.base
 
 import androidx.lifecycle.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
@@ -13,9 +14,9 @@ open class LiveDataModelStore<S>(initialState: S) : ModelStore<S>, ViewModel() {
     private val store = MutableLiveData(initialState)
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             while (isActive) {
-                store.value?.run oldState@{ store.postValue(intents.receive().reduce(this@oldState)) }
+                store.value?.run oldState@{ store.value = intents.receive().reduce(this@oldState) }
             }
         }
     }

@@ -20,8 +20,8 @@ val appModule = module {
     }
     single<ITodoRepository> { TodoRepository() }
     // intent factory
-    single { (modelStore: ModelStore<TodoListModel>) ->
-        TodoListIntentFactory(modelStore)
+    single { (stateStore: ModelStore<TodoListState>) ->
+        TodoListIntentFactory(stateStore)
     }
     single { (modelStore: ModelStore<CreateEditTodoModel>) ->
         CreateEditTodoIntentFactory(modelStore)

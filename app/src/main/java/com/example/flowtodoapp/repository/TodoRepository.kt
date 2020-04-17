@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flow
 class TodoRepository : ITodoRepository {
 
     // TODO refactor to use Room
-    private val dataSet: MutableList<Todo> = mutableListOf()
+    private val dataSet: MutableList<Todo> = mutableListOf(Todo(0, "Title", "Content a"), Todo(1, "Title", "Not Content a"))
 
     override fun getTodoListByQuery(query: String): Flow<List<Todo>> = flow {
         delay(1000)

@@ -16,6 +16,7 @@ import com.example.flowtodoapp.model.CreateEditTodoModelStore
 import com.example.flowtodoapp.model.CreateEditTodoViewEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import org.koin.android.viewmodel.ext.android.viewModel
 import reactivecircus.flowbinding.android.view.clicks
 import reactivecircus.flowbinding.android.widget.afterTextChanges
@@ -36,10 +37,11 @@ class CreateEditTodoFragment : Fragment(), ViewEventFlow<CreateEditTodoViewEvent
     }
 
     override fun viewEvents(): Flow<CreateEditTodoViewEvent> {
-        val titleTextFlow = binding.todoTitleEditText.afterTextChanges(emitImmediately = true)
-        val contentTextFlow = binding.todoContentEditText.afterTextChanges(emitImmediately = true)
-        val buttonClick = binding.finishEditingButton.clicks()
-        val flowList = listOf(buttonClick.combine(titleTextFlow) { (_, textEvent) -> textEvent})
+//        val titleTextFlow = binding.todoTitleEditText.afterTextChanges(emitImmediately = true)
+//        val contentTextFlow = binding.todoContentEditText.afterTextChanges(emitImmediately = true)
+//        val buttonClick = binding.finishEditingButton.clicks()
+//        val flowList = listOf(buttonClick.combine(titleTextFlow) { (_, textEvent) -> textEvent})
+        return flow {  }
     }
 
     private fun LiveData<CreateEditTodoModel>.forTodoDetail() {

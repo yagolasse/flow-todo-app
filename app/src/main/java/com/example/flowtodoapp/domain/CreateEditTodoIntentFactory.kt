@@ -22,9 +22,9 @@ class CreateEditTodoIntentFactory(
     private fun toIntent(viewEvent: CreateEditTodoViewEvent) = when (viewEvent) {
         is CreateEditTodoViewEvent.SaveTodo -> intent<CreateEditTodoModel> {
             if (todo != null) {
-                useCase.save(todo).collect {
-
-                }
+//                useCase.save(todo).collect {
+//
+//                }
             }
             copy(isLoading = true)
         }
