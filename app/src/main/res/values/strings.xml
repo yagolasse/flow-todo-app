@@ -6,4 +6,7 @@
     <string name="no_items_found">Nenhum item encontrado</string>
     <string name="search_for">Pesquisar</string>
     <string name="add">Adicionar</string>
+    <string name="title">Title</string>
+    <string name="content">Content</string>
+    <string name="empty_title_error_message">The title cannot be empty</string>
 </resources>

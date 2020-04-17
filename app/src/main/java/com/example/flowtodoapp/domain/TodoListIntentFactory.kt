@@ -1,11 +1,10 @@
-package com.example.flowtodoapp.factory
+package com.example.flowtodoapp.domain
 
 import com.example.flowtodoapp.base.IntentFactory
 import com.example.flowtodoapp.base.ModelStore
 import com.example.flowtodoapp.base.intent
 import com.example.flowtodoapp.model.TodoListModel
 import com.example.flowtodoapp.model.TodoListViewEvent
-import com.example.flowtodoapp.usecase.ITodoUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.catch

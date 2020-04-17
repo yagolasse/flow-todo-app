@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.example.flowtodoapp.base.ViewEventFlow
 import com.example.flowtodoapp.databinding.FragmentTodoListBinding
-import com.example.flowtodoapp.factory.TodoListIntentFactory
+import com.example.flowtodoapp.domain.TodoListIntentFactory
 import com.example.flowtodoapp.model.TodoListModel
 import com.example.flowtodoapp.model.TodoListModelStore
 import com.example.flowtodoapp.model.TodoListViewEvent

@@ -41,7 +41,7 @@ android {
 dependencies {
     def nav_version = "2.3.0-alpha04"
     def lifecycle_version = "2.3.0-alpha01"
-    def koin_version= '2.1.5'
+    def koin_version = '2.1.5'
     def flowbinding_version = "0.10.2"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
