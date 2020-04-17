@@ -1,9 +1,9 @@
 package com.example.flowtodoapp.factory
 
 import com.example.flowtodoapp.base.IntentFactory
+import com.example.flowtodoapp.base.ModelStore
 import com.example.flowtodoapp.base.intent
 import com.example.flowtodoapp.model.TodoListModel
-import com.example.flowtodoapp.model.TodoListModelStore
 import com.example.flowtodoapp.model.TodoListViewEvent
 import com.example.flowtodoapp.usecase.ITodoUseCase
 import kotlinx.coroutines.Dispatchers
@@ -14,11 +14,12 @@ import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
-class TodoListIntentFactory : IntentFactory<TodoListViewEvent>, KoinComponent {
+class TodoListIntentFactory(
+    private val modelStore: ModelStore<TodoListModel>
+) : IntentFactory<TodoListViewEvent>, KoinComponent {
 
     private val scope = MainScope()
     private val useCase: ITodoUseCase by inject()
-    private val modelStore: TodoListModelStore by inject()
 
     override fun process(viewEvent: TodoListViewEvent) {
         modelStore.process(toIntent(viewEvent))
@@ -29,15 +30,29 @@ class TodoListIntentFactory : IntentFactory<TodoListViewEvent>, KoinComponent {
             scope.launch(Dispatchers.IO) {
                 useCase.getTodoListByQuery(viewEvent.editable)
                     .catch { exception ->
-                        copy(dataSet = null, isLoading = false, errorMessage = exception.message)
+                        modelStore.process(intent {
+                            copy(
+                                dataSet = null,
+                                isLoading = false,
+                                errorMessage = exception.message,
+                                shouldOpenTodoCreation = false
+                            )
+                        })
                     }
                     .collect {
-                        modelStore.process(intent { copy(dataSet = it, isLoading = false, errorMessage = null) })
+                        modelStore.process(intent {
+                            copy(
+                                dataSet = it,
+                                isLoading = false,
+                                errorMessage = null,
+                                shouldOpenTodoCreation = false
+                            )
+                        })
                     }
             }
-            copy(dataSet = null, isLoading = true, errorMessage = null)
+            copy(dataSet = null, isLoading = true, errorMessage = null, shouldOpenTodoCreation = false)
         }
-        is TodoListViewEvent.CreateTodo -> intent {
+        is TodoListViewEvent.CreateEditTodo -> intent {
             copy(shouldOpenTodoCreation = !viewEvent.isAlreadyShown)
         }
     }
