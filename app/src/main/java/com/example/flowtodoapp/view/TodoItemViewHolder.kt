@@ -1,21 +1,28 @@
 package com.example.flowtodoapp.view
 
 import androidx.recyclerview.widget.RecyclerView
+import com.example.flowtodoapp.base.ViewEventFlow
 import com.example.flowtodoapp.databinding.ItemTodoBinding
 import com.example.flowtodoapp.model.Todo
-import kotlinx.coroutines.flow.Flow
+import com.example.flowtodoapp.model.TodoListViewEvent
 import kotlinx.coroutines.flow.map
 import reactivecircus.flowbinding.android.view.clicks
 
 class TodoItemViewHolder(
     private val binding: ItemTodoBinding
-) : RecyclerView.ViewHolder(binding.root) {
+) : RecyclerView.ViewHolder(binding.root), ViewEventFlow<TodoListViewEvent> {
 
-    fun bind(item: Todo): Flow<Todo> {
+    private lateinit var todo: Todo
+
+    fun bind(item: Todo) {
+        todo = item
         with(binding) {
             todoTitle.text = item.title
             todoContent.text = item.content
         }
-        return binding.itemTodoContainer.clicks().map { item }
+    }
+
+    override fun viewEvents() = binding.itemTodoContainer.clicks().map {
+        TodoListViewEvent.CreateEditTodo(todo)
     }
 }

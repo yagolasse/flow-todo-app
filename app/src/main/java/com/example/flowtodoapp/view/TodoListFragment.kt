@@ -16,20 +16,30 @@ import com.example.flowtodoapp.model.TodoListModelStore
 import com.example.flowtodoapp.model.TodoListState
 import com.example.flowtodoapp.model.TodoListViewEvent
 import com.example.flowtodoapp.view.TodoListFragmentDirections.Companion.actionTodoListFragmentToCreateEditTodoFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import reactivecircus.flowbinding.android.view.clicks
 import reactivecircus.flowbinding.android.widget.afterTextChanges
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 class TodoListFragment : Fragment(), ViewEventFlow<TodoListViewEvent> {
 
-    private val adapter = TodoListRecyclerAdapter()
-    private val modelStore: TodoListModelStore by viewModel()
-    private val intentFactory: TodoListIntentFactory by inject { parametersOf(modelStore) }
     private lateinit var binding: FragmentTodoListBinding
+    private val modelStore: TodoListModelStore by viewModel()
+    private val intentFactory: TodoListIntentFactory by inject {
+        parametersOf(modelStore)
+    }
+    private val adapter: TodoListRecyclerAdapter by lazy(LazyThreadSafetyMode.NONE) {
+        TodoListRecyclerAdapter(viewLifecycleOwner.lifecycleScope, intentFactory)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentTodoListBinding.inflate(inflater, container, false).apply {
@@ -41,42 +51,42 @@ class TodoListFragment : Fragment(), ViewEventFlow<TodoListViewEvent> {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewEvents().process().launchIn(viewLifecycleOwner.lifecycleScope)
-        modelStore.modelState().renderNewState()
+        modelStore.modelState().renderNewState().launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     override fun viewEvents(): Flow<TodoListViewEvent> {
-        val flowList: List<Flow<TodoListViewEvent>> = listOf(
-            adapter.viewEvents().map { clickedItem ->
-                TodoListViewEvent.CreateEditTodo(editItem = clickedItem)
-            },
-            binding.addButton.clicks().map {
-                TodoListViewEvent.CreateEditTodo()
-            },
-            binding.searchFieldEditText.afterTextChanges(emitImmediately = true).debounce(timeoutMillis = 500).map {
-                TodoListViewEvent.Query(it.editable)
-            }
-        )
-
+        val flowList = listOf(addButtonFlow(), searchFieldEditTextFlow())
         return flowList.asFlow().flattenMerge(flowList.size)
     }
 
-    private fun Flow<TodoListViewEvent>.process(): Flow<TodoListViewEvent> = onEach {
+    private fun addButtonFlow(): Flow<TodoListViewEvent> {
+        return binding.addButton.clicks().map {
+            TodoListViewEvent.CreateEditTodo()
+        }
+    }
+
+    private fun searchFieldEditTextFlow(): Flow<TodoListViewEvent> {
+        return binding
+            .searchFieldEditText
+            .afterTextChanges(emitImmediately = true)
+            .debounce(timeoutMillis = 500)
+            .map {
+                TodoListViewEvent.Query(it.editable)
+            }
+    }
+
+    private fun Flow<TodoListViewEvent>.process() = onEach {
         intentFactory.process(it)
     }
 
-    private fun LiveData<TodoListState>.renderNewState() {
-        observe(viewLifecycleOwner, Observer { newState ->
-            when (newState) {
-                is TodoListState.Loading -> renderLoadingState()
-                is TodoListState.ErrorWithoutMessage -> renderErrorState()
-                is TodoListState.Data -> renderDataState(newState)
-                is TodoListState.Error -> {
-                    /* Does Nothing for now */
-                }
-                is TodoListState.NavigateToTodoCreateEdit -> navigateToTodoCreateEdit(newState)
-                is TodoListState.Empty -> renderEmptyState()
-            }
-        })
+    private fun Flow<TodoListState>.renderNewState() = onEach { newState ->
+        when (newState) {
+            is TodoListState.Loading -> renderLoadingState()
+            is TodoListState.ErrorWithoutMessage -> renderErrorState()
+            is TodoListState.Data -> renderDataState(newState)
+            is TodoListState.NavigateToTodoCreateEdit -> navigateToTodoCreateEdit(newState)
+            is TodoListState.Empty -> renderEmptyState()
+        }
     }
 
     private fun renderEmptyState() {

@@ -9,6 +9,8 @@ import com.example.flowtodoapp.model.Todo
 import com.example.flowtodoapp.model.TodoListState
 import com.example.flowtodoapp.model.TodoListViewEvent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
+@ExperimentalCoroutinesApi
 class TodoListIntentFactory(
     private val modelStore: ModelStore<TodoListState>
 ) : IntentFactory<TodoListViewEvent>, KoinComponent {
@@ -32,16 +35,17 @@ class TodoListIntentFactory(
             TodoListState.NavigateToTodoCreateEdit()
         }
         is TodoListViewEvent.Query -> intent {
-            useCase.getTodoListByQuery(viewEvent.editable).processExceptionIntent().processDataIntent()
+            useCase
+                .getTodoListByQuery(viewEvent.editable)
+                .processExceptionIntent()
+                .processDataIntent()
+
             TodoListState.Loading
         }
     }
 
-    private fun Flow<List<Todo>>.processExceptionIntent(): Flow<List<Todo>> = catch { exception ->
-        val message = exception.message
-        val newState = if (exception is IllegalArgumentException && message != null) TodoListState.Error(message)
-        else TodoListState.ErrorWithoutMessage
-        modelStore.process(intent(newState))
+    private fun Flow<List<Todo>>.processExceptionIntent() = catch {
+        modelStore.process(intent(TodoListState.ErrorWithoutMessage))
     }
 
     private fun Flow<List<Todo>>.processDataIntent() {

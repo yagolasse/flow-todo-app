@@ -66,6 +66,7 @@ dependencies {
     implementation "org.koin:koin-android-viewmodel:$koin_version"
 
     implementation "io.github.reactivecircus.flowbinding:flowbinding-android:$flowbinding_version"
+    implementation "io.github.reactivecircus.flowbinding:flowbinding-activity:${flowbinding_version}"
 
     testImplementation 'junit:junit:4.12'
     testImplementation "org.koin:koin-test:$koin_version"
