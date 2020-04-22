@@ -48,15 +48,13 @@ class CreateEditTodoFragment : Fragment(), ViewEventFlow<CreateEditTodoViewEvent
     // Using this callback because of the back pressed event
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         modelStore.modelState().renderNewState().launchIn(viewLifecycleOwner.lifecycleScope)
         viewEvents().process().launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     override fun viewEvents(): Flow<CreateEditTodoViewEvent> {
-        val flowList: MutableList<Flow<CreateEditTodoViewEvent>> = mutableListOf(saveButtonClickFlow(), editingFlow())
+        val flowList = mutableListOf(saveButtonClickFlow(), editingFlow())
         backPressesFlow()?.run { flowList.add(this) }
-
         return flowList.asFlow().flattenMerge(flowList.size)
     }
 
@@ -64,13 +62,15 @@ class CreateEditTodoFragment : Fragment(), ViewEventFlow<CreateEditTodoViewEvent
         intentFactory.process(event)
     }
 
-    private fun saveButtonClickFlow() = binding.finishEditingButton.clicks().map {
-        CreateEditTodoViewEvent.SaveTodo
-    }
+    private fun saveButtonClickFlow(): Flow<CreateEditTodoViewEvent> = binding
+        .finishEditingButton
+        .clicks()
+        .map { CreateEditTodoViewEvent.SaveTodo }
 
-    private fun backPressesFlow() = activity?.onBackPressedDispatcher?.backPresses(viewLifecycleOwner)?.map {
-        CreateEditTodoViewEvent.BackNavigation
-    }
+    private fun backPressesFlow(): Flow<CreateEditTodoViewEvent>? = activity
+        ?.onBackPressedDispatcher
+        ?.backPresses(viewLifecycleOwner)
+        ?.map { CreateEditTodoViewEvent.BackNavigation }
 
     private fun editingFlow(): Flow<CreateEditTodoViewEvent> {
         val titleTextFlow = binding.todoTitleEditText.afterTextChanges()

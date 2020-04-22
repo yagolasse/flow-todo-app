@@ -23,6 +23,6 @@ class TodoItemViewHolder(
     }
 
     override fun viewEvents() = binding.itemTodoContainer.clicks().map {
-        TodoListViewEvent.CreateEditTodo(todo)
+        TodoListViewEvent.CreateEditTodo(editItem = todo)
     }
 }

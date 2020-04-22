@@ -32,7 +32,7 @@ class TodoListIntentFactory(
 
     private fun toIntent(viewEvent: TodoListViewEvent) = when (viewEvent) {
         is TodoListViewEvent.CreateEditTodo -> intent<TodoListState> {
-            TodoListState.NavigateToTodoCreateEdit()
+            TodoListState.NavigateToTodoCreateEdit(viewEvent.editItem, viewEvent.alreadyExecuted)
         }
         is TodoListViewEvent.Query -> intent {
             useCase

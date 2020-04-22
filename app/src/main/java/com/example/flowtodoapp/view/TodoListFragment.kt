@@ -10,8 +10,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.flowtodoapp.base.ViewEventFlow
+import com.example.flowtodoapp.base.intent
 import com.example.flowtodoapp.databinding.FragmentTodoListBinding
 import com.example.flowtodoapp.domain.TodoListIntentFactory
+import com.example.flowtodoapp.model.CreateEditTodoState
 import com.example.flowtodoapp.model.TodoListModelStore
 import com.example.flowtodoapp.model.TodoListState
 import com.example.flowtodoapp.model.TodoListViewEvent
@@ -59,74 +61,66 @@ class TodoListFragment : Fragment(), ViewEventFlow<TodoListViewEvent> {
         return flowList.asFlow().flattenMerge(flowList.size)
     }
 
-    private fun addButtonFlow(): Flow<TodoListViewEvent> {
-        return binding.addButton.clicks().map {
-            TodoListViewEvent.CreateEditTodo()
-        }
-    }
+    private fun addButtonFlow(): Flow<TodoListViewEvent> = binding
+        .addButton
+        .clicks()
+        .map { TodoListViewEvent.CreateEditTodo() }
 
-    private fun searchFieldEditTextFlow(): Flow<TodoListViewEvent> {
-        return binding
-            .searchFieldEditText
-            .afterTextChanges(emitImmediately = true)
-            .debounce(timeoutMillis = 500)
-            .map {
-                TodoListViewEvent.Query(it.editable)
-            }
-    }
+    private fun searchFieldEditTextFlow(): Flow<TodoListViewEvent> = binding
+        .searchFieldEditText
+        .afterTextChanges(emitImmediately = true)
+        .debounce(timeoutMillis = 500)
+        .map { TodoListViewEvent.Query(it.editable) }
 
     private fun Flow<TodoListViewEvent>.process() = onEach {
         intentFactory.process(it)
     }
 
     private fun Flow<TodoListState>.renderNewState() = onEach { newState ->
-        when (newState) {
-            is TodoListState.Loading -> renderLoadingState()
-            is TodoListState.ErrorWithoutMessage -> renderErrorState()
-            is TodoListState.Data -> renderDataState(newState)
-            is TodoListState.NavigateToTodoCreateEdit -> navigateToTodoCreateEdit(newState)
-            is TodoListState.Empty -> renderEmptyState()
+        with(binding) {
+            when (newState) {
+                is TodoListState.Loading -> renderLoadingState()
+                is TodoListState.ErrorWithoutMessage -> renderErrorState()
+                is TodoListState.Data -> renderDataState(newState)
+                is TodoListState.NavigateToTodoCreateEdit -> navigateToTodoCreateEdit(newState)
+                is TodoListState.Empty -> renderEmptyState()
+            }
         }
     }
 
-    private fun renderEmptyState() {
-        with(binding) {
-            emptyStateLabel.visibility = View.VISIBLE
-            todoListRecycler.visibility = View.GONE
-            progress.visibility = View.GONE
-        }
+    private fun FragmentTodoListBinding.renderEmptyState() {
+        emptyStateLabel.visibility = View.VISIBLE
+        todoListRecycler.visibility = View.GONE
+        progress.visibility = View.GONE
     }
 
     private fun navigateToTodoCreateEdit(newState: TodoListState.NavigateToTodoCreateEdit) {
-        newState.takeUnless { it.alreadyExecuted }?.run {
-            val action = actionTodoListFragmentToCreateEditTodoFragment(todo)
-            findNavController().navigate(action)
+        if (!newState.alreadyExecuted) {
+            intentFactory.process(TodoListViewEvent.CreateEditTodo(true, newState.todo))
+            newState.takeUnless { it.alreadyExecuted }?.run {
+                val action = actionTodoListFragmentToCreateEditTodoFragment(todo)
+                findNavController().navigate(action)
+            }
         }
     }
 
-    private fun renderDataState(newState: TodoListState.Data) {
-        with(binding) {
-            emptyStateLabel.visibility = View.GONE
-            todoListRecycler.visibility = View.VISIBLE
-            progress.visibility = View.GONE
-            adapter.dataSet = newState.dataSet
-        }
+    private fun FragmentTodoListBinding.renderDataState(newState: TodoListState.Data) {
+        emptyStateLabel.visibility = View.GONE
+        todoListRecycler.visibility = View.VISIBLE
+        progress.visibility = View.GONE
+        adapter.dataSet = newState.dataSet
     }
 
-    private fun renderErrorState() {
-        with(binding) {
-            // TODO show error state here
-            emptyStateLabel.visibility = View.GONE
-            todoListRecycler.visibility = View.GONE
-            progress.visibility = View.GONE
-        }
+    private fun FragmentTodoListBinding.renderErrorState() {
+        // TODO show error state here
+        emptyStateLabel.visibility = View.GONE
+        todoListRecycler.visibility = View.GONE
+        progress.visibility = View.GONE
     }
 
-    private fun renderLoadingState() {
-        with(binding) {
-            emptyStateLabel.visibility = View.GONE
-            todoListRecycler.visibility = View.GONE
-            progress.visibility = View.VISIBLE
-        }
+    private fun FragmentTodoListBinding.renderLoadingState() {
+        emptyStateLabel.visibility = View.GONE
+        todoListRecycler.visibility = View.GONE
+        progress.visibility = View.VISIBLE
     }
 }
