@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @ExperimentalCoroutinesApi
 open class FlowModelStore<S>(initialState: S) : ModelStore<S>, ViewModel() {
 
-    private val scope = MainScope()
     private val intents = Channel<Intent<S>>()
     private val store = ConflatedBroadcastChannel(initialState)
 
