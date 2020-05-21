@@ -9,24 +9,5 @@
         android:id="@+id/todoListFragment"
         android:name="com.example.flowtodoapp.view.TodoListFragment"
         android:label="Fragment Todo List"
-        tools:layout="@layout/fragment_todo_list">
-        <action
-            android:id="@+id/action_todoListFragment_to_createEditTodoFragment"
-            app:destination="@id/createEditTodoFragment">
-            <argument
-                android:name="todo"
-                app:argType="com.example.flowtodoapp.model.Todo"
-                app:nullable="true" />
-        </action>
-    </fragment>
-    <fragment
-        android:id="@+id/createEditTodoFragment"
-        android:name="com.example.flowtodoapp.view.CreateEditTodoFragment"
-        android:label="fragment_create_edit_todo"
-        tools:layout="@layout/fragment_create_edit_todo">
-        <argument
-            android:name="todo"
-            app:argType="com.example.flowtodoapp.model.Todo"
-            app:nullable="true" />
-    </fragment>
+        tools:layout="@layout/fragment_todo_list" />
 </navigation>

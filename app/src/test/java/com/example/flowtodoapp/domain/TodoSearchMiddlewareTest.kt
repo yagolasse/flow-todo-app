@@ -1,14 +1,10 @@
 package com.example.flowtodoapp.domain
 
-import android.text.Editable
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import com.example.flowtodoapp.base.test
 import com.example.flowtodoapp.model.Todo
 import com.example.flowtodoapp.model.TodoListAction
 import com.example.flowtodoapp.model.TodoListState
-import com.example.flowtodoapp.repository.ITodoRepository
-import com.example.flowtodoapp.repository.TodoRepository
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,8 +14,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.koin.test.KoinTest
-
-import org.junit.Assert.*
 
 class TodoSearchMiddlewareTest : KoinTest {
 
@@ -39,18 +33,15 @@ class TodoSearchMiddlewareTest : KoinTest {
         val query = SpannableStringBuilder("")
         val actionFlow = flow { emit(TodoListAction.GetByQuery(query)) }
         val stateFlow = flow { emit(TodoListState()) }
-        val repository = mockk<ITodoRepository> {
+        val useCase = mockk<ITodoUseCase> {
             coEvery { getTodoListByQuery(any()) } returns flow { emit(result) }
         }
-        val middleware = TodoSearchMiddleware(repository)
+        val middleware = TodoSearchMiddleware(useCase)
         runBlockingTest {
-            middleware
-                // When
-                .bind(actionFlow, stateFlow)
-                .test(this)
+            // When
+            middleware.bind(actionFlow, stateFlow).test(this)
                 // Then
-                .assertValues(TodoListAction.DisplayList(result))
-                .finish()
+                .assertValues(TodoListAction.DisplayList(result)).finish()
         }
     }
 }

@@ -2,21 +2,21 @@ package com.example.flowtodoapp.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flowtodoapp.base.IntentFactory
+import com.example.flowtodoapp.base.ModelStore
 import com.example.flowtodoapp.databinding.ItemTodoBinding
 import com.example.flowtodoapp.model.Todo
-import com.example.flowtodoapp.model.TodoListViewEvent
+import com.example.flowtodoapp.model.TodoListAction
+import com.example.flowtodoapp.model.TodoListState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.FlowPreview
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 class TodoListRecyclerAdapter(
     private val scope: CoroutineScope,
-    private val intentFactory: IntentFactory<TodoListViewEvent>
+    private val intentFactory: ModelStore<TodoListAction, TodoListState>
 ) : RecyclerView.Adapter<TodoItemViewHolder>() {
 
     var dataSet: List<Todo> = listOf()
@@ -29,7 +29,7 @@ class TodoListRecyclerAdapter(
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemTodoBinding.inflate(inflater, parent, false)
         return TodoItemViewHolder(binding).also {
-            it.viewEvents().onEach { event -> intentFactory.process(event) }.launchIn(scope)
+//            it.viewEvents().onEach { /*event -> intentFactory.process(event)*/ }.launchIn(scope)
         }
     }
 
