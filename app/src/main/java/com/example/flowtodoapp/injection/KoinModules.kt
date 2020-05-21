@@ -3,7 +3,6 @@ package com.example.flowtodoapp.injection
 import com.example.flowtodoapp.R
 import com.example.flowtodoapp.base.ModelStore
 import com.example.flowtodoapp.domain.CreateEditTodoIntentFactory
-import com.example.flowtodoapp.domain.TodoListIntentFactory
 import com.example.flowtodoapp.repository.ITodoRepository
 import com.example.flowtodoapp.repository.TodoRepository
 import com.example.flowtodoapp.domain.ITodoUseCase
@@ -24,14 +23,14 @@ val appModule = module {
     }
     single<ITodoRepository> { TodoRepository() }
     // intent factory
-    single { (stateStore: ModelStore<TodoListState>) ->
-        TodoListIntentFactory(stateStore)
-    }
+//    single { (stateStore: ModelStore<TodoListState>) ->
+//        TodoListIntentFactory(stateStore)
+//    }
     single { (modelStore: ModelStore<CreateEditTodoState>) ->
         CreateEditTodoIntentFactory(modelStore)
     }
     // model store
-    viewModel { TodoListModelStore() }
+//    viewModel { TodoListModelStore() }
     viewModel { (todo: Todo?) ->
         CreateEditTodoModelStore(todo)
     }
