@@ -6,6 +6,8 @@ sealed class TodoListAction {
     // Inputs
     data class GetByQuery(val query: Editable?) : TodoListAction()
 
+    // TODO CONVERT TO STATES ONLY AND MAKE THE MIDDLEWARE CALL ANOTHER MODEL STORE TO NAVIGATE
+
     // Outputs
     object DisplayEmpty : TodoListAction()
     object DisplayLoading : TodoListAction()

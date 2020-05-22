@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.*
 @FlowPreview
 @ExperimentalCoroutinesApi
 class ModelStore<A, S, E>(
-    private val reducer: Reducer<S, A, E>,
+    private val reducer: Reducer<S, A>,
+    private val actionEventConverter: ActionEventConverter<A, E>,
     middlewareList: List<Middleware<A, S>>,
     initialState: S
 ) : ViewModel(), Store<A, S, E> {
@@ -47,11 +48,8 @@ class ModelStore<A, S, E>(
     override fun storeEvents(): Flow<E> = events.asFlow()
 
     private fun Flow<A>.applyReducer() = onEach {
-        val (state, event) = reducer.reduce(store.value, it)
-        store.value = state
-        if (event != null) {
-            events.offer(event)
-        }
+        store.value = reducer.reduce(store.value, it)
+        actionEventConverter.convert(it)?.run { events.offer(this) }
     }
 
     private fun List<Middleware<A, S>>.bindReturningAction(actionFlow: Flow<A>) = map {

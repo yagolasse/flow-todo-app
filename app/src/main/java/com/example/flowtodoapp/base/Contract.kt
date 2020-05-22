@@ -2,8 +2,12 @@ package com.example.flowtodoapp.base
 
 import kotlinx.coroutines.flow.Flow
 
-interface Reducer<S, A, E> {
-    fun reduce(state: S, action: A): Pair<S, E?>
+interface Reducer<S, A> {
+    fun reduce(state: S, action: A): S
+}
+
+interface ActionEventConverter<A, E> {
+    fun convert(action: A): E?
 }
 
 interface Middleware<A, S> {
