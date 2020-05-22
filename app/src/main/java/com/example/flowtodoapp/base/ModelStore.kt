@@ -5,23 +5,24 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.flow.*
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-class ModelStore<A, S>(
-    private val reducer: Reducer<S, A>,
+class ModelStore<A, S, E>(
+    private val reducer: Reducer<S, A, E>,
     middlewareList: List<Middleware<A, S>>,
     initialState: S
-) : ViewModel(), Store<A, S> {
+) : ViewModel(), Store<A, S, E> {
 
-    private val actions = Channel<A>()
+    private val actions = BroadcastChannel<A>(DEFAULT_BUFFER_SIZE)
+    private val events = BroadcastChannel<E>(DEFAULT_BUFFER_SIZE)
     private val store = MutableStateFlow(initialState)
 
     init {
         val actionFlow = actions
-            .receiveAsFlow()
+            .asFlow()
             .distinctUntilChanged()
             .applyReducer()
             .flowOn(Dispatchers.Main)
@@ -43,8 +44,14 @@ class ModelStore<A, S>(
 
     override fun storeState(): Flow<S> = store
 
+    override fun storeEvents(): Flow<E> = events.asFlow()
+
     private fun Flow<A>.applyReducer() = onEach {
-        store.value = reducer.reduce(store.value, it)
+        val (state, event) = reducer.reduce(store.value, it)
+        store.value = state
+        if (event != null) {
+            events.offer(event)
+        }
     }
 
     private fun List<Middleware<A, S>>.bindReturningAction(actionFlow: Flow<A>) = map {

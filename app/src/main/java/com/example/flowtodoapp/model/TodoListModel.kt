@@ -5,7 +5,6 @@ import android.text.Editable
 sealed class TodoListAction {
     // Inputs
     data class GetByQuery(val query: Editable?) : TodoListAction()
-    data class CreateEditTodo(val todo: Todo? = null) : TodoListAction()
 
     // Outputs
     object DisplayEmpty : TodoListAction()
@@ -13,8 +12,15 @@ sealed class TodoListAction {
     data class DisplayList(val data: List<Todo>) : TodoListAction()
     data class DisplayError(val throwable: Throwable) : TodoListAction()
 
-    // Events Dismiss
-    object DismissCreateEditTodo : TodoListAction()
+    // Events Input
+    data class CreateEditTodo(val todo: Todo? = null) : TodoListAction()
+
+    // Events Output
+    data class NavigateToCreateEditTodo(val todo: Todo? = null) : TodoListAction()
+}
+
+sealed class TodoListEvent {
+    data class NavigateToCreateEditTodo(val todo: Todo?) : TodoListEvent()
 }
 
 data class TodoListState(

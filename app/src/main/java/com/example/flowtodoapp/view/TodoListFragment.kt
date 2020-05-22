@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.flowtodoapp.base.ModelStore
 import com.example.flowtodoapp.databinding.FragmentTodoListBinding
 import com.example.flowtodoapp.model.TodoListAction
+import com.example.flowtodoapp.model.TodoListEvent
 import com.example.flowtodoapp.model.TodoListState
 import com.example.flowtodoapp.util.isVisibleIf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +25,7 @@ import reactivecircus.flowbinding.android.widget.afterTextChanges
 class TodoListFragment : Fragment() {
 
     private lateinit var binding: FragmentTodoListBinding
-    private val modelStore: ModelStore<TodoListAction, TodoListState> by viewModel()
+    private val modelStore: ModelStore<TodoListAction, TodoListState, TodoListEvent> by viewModel()
     private val adapter: TodoListRecyclerAdapter by lazy(LazyThreadSafetyMode.NONE) {
         TodoListRecyclerAdapter(viewLifecycleOwner.lifecycleScope, modelStore)
     }
@@ -40,6 +41,7 @@ class TodoListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewEvents().process().launchIn(viewLifecycleOwner.lifecycleScope)
         modelStore.storeState().renderNewState().launchIn(viewLifecycleOwner.lifecycleScope)
+        modelStore.storeEvents().handleEvents().launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun viewEvents(): Flow<TodoListAction> {
@@ -71,11 +73,12 @@ class TodoListFragment : Fragment() {
             if (newState.data != null) {
                 adapter.dataSet = newState.data
             }
+        }
+    }
 
-            val currentContext = context
-            if (newState.navigateToCreateEditTodo && currentContext != null) {
-                Toast.makeText(currentContext, "It worked", Toast.LENGTH_SHORT).show()
-            }
+    private fun Flow<TodoListEvent>.handleEvents() = onEach {
+        when (it) {
+            is TodoListEvent.NavigateToCreateEditTodo -> context?.run { Toast.makeText(this, "Worked", Toast.LENGTH_SHORT).show() }
         }
     }
 }

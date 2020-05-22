@@ -7,6 +7,7 @@ import com.example.flowtodoapp.base.ModelStore
 import com.example.flowtodoapp.databinding.ItemTodoBinding
 import com.example.flowtodoapp.model.Todo
 import com.example.flowtodoapp.model.TodoListAction
+import com.example.flowtodoapp.model.TodoListEvent
 import com.example.flowtodoapp.model.TodoListState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +17,7 @@ import kotlinx.coroutines.FlowPreview
 @ExperimentalCoroutinesApi
 class TodoListRecyclerAdapter(
     private val scope: CoroutineScope,
-    private val intentFactory: ModelStore<TodoListAction, TodoListState>
+    private val intentFactory: ModelStore<TodoListAction, TodoListState, TodoListEvent>
 ) : RecyclerView.Adapter<TodoItemViewHolder>() {
 
     var dataSet: List<Todo> = listOf()

@@ -2,14 +2,20 @@ package com.example.flowtodoapp.model
 
 import com.example.flowtodoapp.base.Reducer
 
-class TodoListReducer : Reducer<TodoListState, TodoListAction> {
-    override fun reduce(state: TodoListState, action: TodoListAction): TodoListState = when (action) {
-        is TodoListAction.GetByQuery -> state
-        is TodoListAction.DisplayEmpty -> TodoListState(isEmpty = true)
-        is TodoListAction.DisplayLoading -> TodoListState(isLoading = true)
-        is TodoListAction.DisplayList -> TodoListState(data = action.data)
-        is TodoListAction.DisplayError -> TodoListState(errorMessage = action.throwable.message)
-        is TodoListAction.CreateEditTodo -> state.copy(navigateToCreateEditTodo = true)
-        is TodoListAction.DismissCreateEditTodo -> state.copy(navigateToCreateEditTodo = false)
+class TodoListReducer : Reducer<TodoListState, TodoListAction, TodoListEvent> {
+    override fun reduce(state: TodoListState, action: TodoListAction): Pair<TodoListState, TodoListEvent?> = when (action) {
+        // Actions
+        // Inputs
+        is TodoListAction.GetByQuery -> state to null
+        is TodoListAction.CreateEditTodo -> state to null
+        // Outputs
+        is TodoListAction.DisplayEmpty -> TodoListState(isEmpty = true) to null
+        is TodoListAction.DisplayLoading -> TodoListState(isLoading = true) to null
+        is TodoListAction.DisplayList -> TodoListState(data = action.data) to null
+        is TodoListAction.DisplayError -> TodoListState(errorMessage = action.throwable.message) to null
+        // Events
+        is TodoListAction.NavigateToCreateEditTodo -> state to TodoListEvent.NavigateToCreateEditTodo(action.todo)
     }
+
+
 }
